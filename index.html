@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pixel GDD Generator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="module">
+      import React, { useMemo, useState } from 'https://esm.sh/react@18.3.1';
+      import { createRoot } from 'https://esm.sh/react-dom@18.3.1/client';
+      import htm from 'https://esm.sh/htm@3.1.1';
+
+      const html = htm.bind(React.createElement);
+
+      const initialState = {
+        title: '',
+        genre: 'Platformer',
+        targetPlatforms: 'PC, Nintendo Switch',
+        coreLoop: '',
+        artStyle: '16-bit colorful pixel art',
+        storyHook: '',
+        playerAbilities: '',
+        progression: '',
+        enemies: '',
+        bossDesign: '',
+        levelThemes: '',
+        monetization: 'Premium',
+        timeline: '6 months',
+        teamSize: '4'
+      };
+
+      const genres = ['Platformer', 'Metroidvania', 'Top-down Action', 'Tactical RPG', 'Puzzle Adventure', 'Roguelite'];
+
+      function App() {
+        const [form, setForm] = useState(initialState);
+
+        const gdd = useMemo(() => {
+          const {
+            title,
+            genre,
+            targetPlatforms,
+            coreLoop,
+            artStyle,
+            storyHook,
+            playerAbilities,
+            progression,
+            enemies,
+            bossDesign,
+            levelThemes,
+            monetization,
+            timeline,
+            teamSize
+          } = form;
+
+          return `# ${title || 'Untitled Pixel Adventure'}\n\n## High Concept\n${
+            storyHook || 'A memorable 2D pixel game where players master movement, combat, and discovery in a handcrafted world.'
+          }\n\n## Genre & Audience\n- **Genre:** ${genre}\n- **Target platforms:** ${targetPlatforms}\n- **Core audience:** Players who enjoy skill expression, progression, and retro aesthetics.\n\n## Core Gameplay Loop\n${
+            coreLoop || 'Explore -> fight enemies -> collect resources -> unlock upgrades -> access new areas -> repeat with higher challenge.'
+          }\n\n## Pillars\n1. Responsive controls and expressive movement.\n2. Meaningful progression and unlockable abilities.\n3. Distinct level biomes with secrets and replay value.\n\n## Art & Audio Direction\n- **Visual style:** ${artStyle}\n- **Animation goals:** Snappy silhouettes, readable attacks, and exaggerated impact frames.\n- **Audio goals:** Chiptune-inspired score with adaptive combat intensity.\n\n## Player Toolkit\n${
+            playerAbilities || '- Primary attack\\n- Mobility skill (dash/wall-jump/grapple)\\n- Utility item for exploration\\n- Ultimate ability charged through combat'
+          }\n\n## World & Level Design\n- **Themes:** ${levelThemes || 'Forest ruins, underground mines, storm citadel, and final sky fortress.'}\n- **Enemy design:** ${enemies || 'Mix of melee rushers, ranged pressure units, and area-control hazards.'}\n- **Boss design:** ${bossDesign || 'Each biome ends in a multi-phase boss that tests recently learned mechanics.'}\n\n## Progression & Economy\n${
+            progression || 'Players earn materials and relics to improve health, damage, and utility abilities. Side objectives reward rare upgrades.'
+          }\n\n## Production Scope\n- **Team size:** ${teamSize} people\n- **Timeline target:** ${timeline}\n- **Monetization model:** ${monetization}\n\n## Risks & Mitigations\n- Scope creep -> lock MVP feature list by milestone 1.\n- Combat feel risk -> prototype and playtest controls before content production.\n- Content volume risk -> modular tile sets and reusable AI behavior trees.\n\n## Vertical Slice Checklist\n- 1 complete biome with mini-boss.\n- 3 enemy archetypes.\n- 2 unlockable abilities.\n- Save/load + settings + controller support.\n- Playtest scorecard and iteration notes.`;
+        }, [form]);
+
+        function handleChange(event) {
+          const { name, value } = event.target;
+          setForm((previous) => ({ ...previous, [name]: value }));
+        }
+
+        async function copyToClipboard() {
+          await navigator.clipboard.writeText(gdd);
+        }
+
+        return html`
+          <main className="app">
+            <header>
+              <h1>Pixel GDD Generator</h1>
+              <p>Generate a starter game design document for your next 2D pixel game.</p>
+            </header>
+
+            <section className="layout">
+              <form className="panel form-panel" onSubmit=${(event) => event.preventDefault()}>
+                <h2>Project Inputs</h2>
+
+                <label>Game title
+                  <input name="title" value=${form.title} onChange=${handleChange} placeholder="Neon Relic" />
+                </label>
+
+                <label>Genre
+                  <select name="genre" value=${form.genre} onChange=${handleChange}>
+                    ${genres.map((genre) => html`<option key=${genre}>${genre}</option>`) }
+                  </select>
+                </label>
+
+                <label>Story hook
+                  <textarea name="storyHook" value=${form.storyHook} onChange=${handleChange} placeholder="One-line pitch for the world and player goal"></textarea>
+                </label>
+
+                <label>Core gameplay loop
+                  <textarea name="coreLoop" value=${form.coreLoop} onChange=${handleChange} placeholder="Describe exploration, combat, and progression loop"></textarea>
+                </label>
+
+                <label>Player abilities
+                  <textarea name="playerAbilities" value=${form.playerAbilities} onChange=${handleChange} placeholder="Weapons, movement, and utility abilities"></textarea>
+                </label>
+
+                <label>Level themes
+                  <input name="levelThemes" value=${form.levelThemes} onChange=${handleChange} placeholder="Forest, Lava caves, Sky city" />
+                </label>
+
+                <div className="grid-two">
+                  <label>Team size
+                    <input name="teamSize" value=${form.teamSize} onChange=${handleChange} />
+                  </label>
+                  <label>Timeline
+                    <input name="timeline" value=${form.timeline} onChange=${handleChange} />
+                  </label>
+                </div>
+              </form>
+
+              <article className="panel output-panel">
+                <div className="output-head">
+                  <h2>Generated GDD</h2>
+                  <button type="button" onClick=${copyToClipboard}>Copy Markdown</button>
+                </div>
+                <pre>${gdd}</pre>
+              </article>
+            </section>
+          </main>
+        `;
+      }
+
+      createRoot(document.getElementById('root')).render(React.createElement(App));
+    </script>
+  </body>
+</html>
